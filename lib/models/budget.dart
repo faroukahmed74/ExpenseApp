@@ -8,17 +8,7 @@ class Budget extends HiveObject {
   @HiveField(1)
   double limit;
 
-  Budget({
-    required this.categoryName,
-    required this.limit,
-  });
-
-  Budget copyWith({String? categoryName, double? limit}) {
-    return Budget(
-      categoryName: categoryName ?? this.categoryName,
-      limit: limit ?? this.limit,
-    );
-  }
+  Budget({required this.categoryName, required this.limit});
 }
 
 class BudgetAdapter extends TypeAdapter<Budget> {

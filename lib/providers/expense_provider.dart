@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../data/expense_repository.dart';
@@ -12,138 +12,110 @@ class ExpenseProvider with ChangeNotifier {
 
   final ExpenseRepository _repo;
 
-  List<Expense> _expenses = [];
-  List<Budget> _budgets = [];
   ExpenseCategory? _categoryFilter;
-  DateTime? _startDate;
-  DateTime? _endDate;
-  AppCurrency _currency = AppCurrency.egp;
+  DateTime? _dateStart;
+  DateTime? _dateEnd;
 
-  List<Expense> get expenses => _expenses;
-  List<Budget> get budgets => _budgets;
-  ExpenseCategory? get categoryFilter => _categoryFilter;
-  DateTime? get startDate => _startDate;
-  DateTime? get endDate => _endDate;
-  AppCurrency get currency => _currency;
-
-  NumberFormat get currencyFormat => _currency.formatter;
-
-  Future<void> setCurrency(AppCurrency value) async {
-    _currency = value;
-    await _repo.setCurrencyCode(value.code);
-    notifyListeners();
-  }
+  List<Expense> get _allExpenses => _repo.getAllExpenses();
 
   List<Expense> get filteredExpenses {
-    var list = _expenses.toList();
+    var list = _allExpenses;
     if (_categoryFilter != null) {
       list = list.where((e) => e.categoryName == _categoryFilter!.name).toList();
     }
-    if (_startDate != null) {
-      list = list.where((e) => !e.date.isBefore(_startDate!)).toList();
+    if (_dateStart != null) {
+      list = list.where((e) => !e.date.isBefore(_dateStart!)).toList();
     }
-    if (_endDate != null) {
-      final end = DateTime(_endDate!.year, _endDate!.month, _endDate!.day, 23, 59, 59);
+    if (_dateEnd != null) {
+      final end = DateTime(_dateEnd!.year, _dateEnd!.month, _dateEnd!.day, 23, 59, 59);
       list = list.where((e) => !e.date.isAfter(end)).toList();
     }
-    list.sort((a, b) => b.date.compareTo(a.date));
     return list;
   }
 
+  double get totalSpentFiltered =>
+      filteredExpenses.fold<double>(0, (sum, e) => sum + e.amount);
+
+  AppCurrency get currency => AppCurrency.fromCode(_repo.currencyCode);
+  NumberFormat get currencyFormat => currency.formatter;
+
   double get totalSpentThisMonth {
     final now = DateTime.now();
-    return _expenses
+    return _allExpenses
         .where((e) =>
             e.date.year == now.year && e.date.month == now.month)
         .fold<double>(0, (sum, e) => sum + e.amount);
   }
 
-  double get totalSpentFiltered {
-    return filteredExpenses.fold<double>(0, (sum, e) => sum + e.amount);
-  }
+  double spentForCategory(ExpenseCategory cat) => _allExpenses
+      .where((e) => e.categoryName == cat.name)
+      .fold<double>(0, (sum, e) => sum + e.amount);
 
-  Map<ExpenseCategory, double> get spendingByCategory {
-    final map = <ExpenseCategory, double>{};
-    for (final e in _expenses) {
-      map[e.category] = (map[e.category] ?? 0) + e.amount;
-    }
-    return map;
-  }
-
-  Map<ExpenseCategory, double> spendingByCategoryInRange(DateTime start, DateTime end) {
-    final map = <ExpenseCategory, double>{};
-    for (final e in _expenses) {
-      if (!e.date.isBefore(start) && !e.date.isAfter(end)) {
-        map[e.category] = (map[e.category] ?? 0) + e.amount;
-      }
-    }
-    return map;
-  }
-
-  double spentForCategory(ExpenseCategory category) {
-    return _expenses
-        .where((e) => e.categoryName == category.name)
-        .fold<double>(0, (sum, e) => sum + e.amount);
-  }
-
-  double? budgetLimitForCategory(ExpenseCategory category) {
-    final b = _repo.getBudgetForCategory(category.name);
+  double? budgetLimitForCategory(ExpenseCategory cat) {
+    final b = _repo.getBudgetForCategory(cat.name);
     return b?.limit;
   }
 
-  double? remainingBudget(ExpenseCategory category) {
-    final limit = budgetLimitForCategory(category);
-    if (limit == null) return null;
-    return limit - spentForCategory(category);
+  List<Budget> get budgets => _repo.getAllBudgets();
+
+  Map<ExpenseCategory, double> get spendingByCategory {
+    final map = <ExpenseCategory, double>{};
+    for (final cat in ExpenseCategory.values) {
+      final sum = spentForCategory(cat);
+      if (sum > 0) map[cat] = sum;
+    }
+    return map;
   }
 
   Future<void> load() async {
-    _expenses = _repo.getAllExpenses();
-    _budgets = _repo.getAllBudgets();
-    _currency = AppCurrency.fromCode(_repo.currencyCode);
     notifyListeners();
   }
 
-  Future<void> addExpense(Expense expense) async {
-    await _repo.addExpense(expense);
-    await load();
-  }
-
-  Future<void> updateExpense(Expense expense) async {
-    await _repo.updateExpense(expense);
-    await load();
-  }
-
-  Future<void> deleteExpense(Expense expense) async {
-    await _repo.deleteExpense(expense);
-    await load();
-  }
-
-  Future<void> setBudget(Budget budget) async {
-    await _repo.setBudget(budget);
-    await load();
-  }
-
-  Future<void> removeBudget(Budget budget) async {
-    await _repo.removeBudget(budget);
-    await load();
-  }
-
-  void setCategoryFilter(ExpenseCategory? value) {
-    _categoryFilter = value;
+  void setCategoryFilter(ExpenseCategory? cat) {
+    _categoryFilter = cat;
     notifyListeners();
   }
 
   void setDateRange(DateTime? start, DateTime? end) {
-    _startDate = start;
-    _endDate = end;
+    _dateStart = start;
+    _dateEnd = end;
     notifyListeners();
   }
 
   void clearFilters() {
     _categoryFilter = null;
-    _startDate = null;
-    _endDate = null;
+    _dateStart = null;
+    _dateEnd = null;
+    notifyListeners();
+  }
+
+  Future<void> setCurrency(AppCurrency c) async {
+    await _repo.setCurrencyCode(c.code);
+    notifyListeners();
+  }
+
+  Future<void> setBudget(Budget b) async {
+    await _repo.saveBudget(b);
+    notifyListeners();
+  }
+
+  Future<void> removeBudget(Budget b) async {
+    await _repo.removeBudget(b);
+    notifyListeners();
+  }
+
+  Future<void> addExpense(Expense e) async {
+    await _repo.addExpense(e);
+    notifyListeners();
+  }
+
+  Future<void> updateExpense(Expense e) async {
+    await _repo.updateExpense(e);
+    notifyListeners();
+  }
+
+  Future<void> deleteExpense(Expense e) async {
+    await _repo.deleteExpense(e);
     notifyListeners();
   }
 }

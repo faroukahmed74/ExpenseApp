@@ -3,96 +3,86 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/budget.dart';
 import '../models/expense.dart';
 
-class ExpenseRepository {
-  static const _expensesBox = 'expenses';
-  static const _budgetsBox = 'budgets';
-  static const _settingsBox = 'settings';
-  static const _keyCurrency = 'currency';
-  static const _keyLocale = 'locale';
-  static const _keyThemeMode = 'theme_mode';
+const String _expensesBox = 'expenses';
+const String _budgetsBox = 'budgets';
+const String _settingsBox = 'settings';
+const String _keyLocale = 'locale';
+const String _keyThemeMode = 'theme_mode';
+const String _keyCurrency = 'currency';
 
-  Box<Expense>? _expenses;
-  Box<Budget>? _budgets;
-  Box<dynamic>? _settings;
+class ExpenseRepository {
+  Box<Expense>? _expensesBoxInstance;
+  Box<Budget>? _budgetsBoxInstance;
+  Box<dynamic>? _settingsBoxInstance;
 
   Future<void> init() async {
     await Hive.initFlutter();
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(ExpenseAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(BudgetAdapter());
-    }
-    _expenses = await Hive.openBox<Expense>(_expensesBox);
-    _budgets = await Hive.openBox<Budget>(_budgetsBox);
-    _settings = await Hive.openBox<dynamic>(_settingsBox);
+    Hive.registerAdapter(ExpenseAdapter());
+    Hive.registerAdapter(BudgetAdapter());
+    _expensesBoxInstance = await Hive.openBox<Expense>(_expensesBox);
+    _budgetsBoxInstance = await Hive.openBox<Budget>(_budgetsBox);
+    _settingsBoxInstance = await Hive.openBox<dynamic>(_settingsBox);
   }
 
-  Box<Expense> get expensesBox {
-    if (_expenses == null) throw StateError('Repository not initialized');
-    return _expenses!;
-  }
+  Box<Expense> get _expenses => _expensesBoxInstance!;
+  Box<Budget> get _budgets => _budgetsBoxInstance!;
+  Box<dynamic> get _settings => _settingsBoxInstance!;
 
-  Box<Budget> get budgetsBox {
-    if (_budgets == null) throw StateError('Repository not initialized');
-    return _budgets!;
-  }
-
-  List<Expense> getAllExpenses() => expensesBox.values.toList();
-
-  Future<void> addExpense(Expense expense) => expensesBox.add(expense);
-
-  Future<void> updateExpense(Expense expense) => expense.save();
-
-  Future<void> deleteExpense(Expense expense) => expense.delete();
-
-  List<Budget> getAllBudgets() => budgetsBox.values.toList();
-
-  Future<void> setBudget(Budget budget) async {
-    final keys = budgetsBox.keys.toList();
-    for (final key in keys) {
-      final b = budgetsBox.get(key);
-      if (b != null && b.categoryName == budget.categoryName) {
-        await budgetsBox.put(key, budget);
-        return;
-      }
-    }
-    await budgetsBox.add(budget);
-  }
-
-  Future<void> removeBudget(Budget budget) => budget.delete();
-
-  Budget? getBudgetForCategory(String categoryName) {
-    try {
-      return budgetsBox.values.firstWhere(
-        (b) => b.categoryName == categoryName,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  String get currencyCode =>
-      _settings?.get(_keyCurrency) as String? ?? 'EGP';
-
-  Future<void> setCurrencyCode(String code) async {
-    await _settings?.put(_keyCurrency, code);
-  }
-
-  String? get localeCode => _settings?.get(_keyLocale) as String?;
-
-  Future<void> setLocaleCode(String? code) async {
-    if (code == null) {
-      await _settings?.delete(_keyLocale);
+  // Settings
+  String? get localeCode => _settings.get(_keyLocale) as String?;
+  Future<void> setLocaleCode(String? value) async {
+    if (value != null) {
+      await _settings.put(_keyLocale, value);
     } else {
-      await _settings?.put(_keyLocale, code);
+      await _settings.delete(_keyLocale);
     }
   }
 
-  String get themeModeName =>
-      _settings?.get(_keyThemeMode) as String? ?? 'system';
-
+  String get themeModeName => _settings.get(_keyThemeMode) as String? ?? 'system';
   Future<void> setThemeModeName(String value) async {
-    await _settings?.put(_keyThemeMode, value);
+    await _settings.put(_keyThemeMode, value);
   }
+
+  String get currencyCode => _settings.get(_keyCurrency) as String? ?? 'EGP';
+  Future<void> setCurrencyCode(String value) async {
+    await _settings.put(_keyCurrency, value);
+  }
+
+  // Expenses
+  List<Expense> getAllExpenses() =>
+      _expenses.values.toList()..sort((a, b) => b.date.compareTo(a.date));
+
+  Future<void> addExpense(Expense e) async {
+    await _expenses.add(e);
+  }
+
+  Future<void> updateExpense(Expense e) async {
+    await e.save();
+  }
+
+  Future<void> deleteExpense(Expense e) async {
+    await e.delete();
+  }
+
+  // Budgets
+  List<Budget> getAllBudgets() => _budgets.values.toList();
+
+  Future<void> saveBudget(Budget b) async {
+    final existing = _budgets.values
+        .where((x) => x.categoryName == b.categoryName)
+        .firstOrNull;
+    if (existing != null) {
+      existing.limit = b.limit;
+      await existing.save();
+    } else {
+      await _budgets.add(b);
+    }
+  }
+
+  Future<void> removeBudget(Budget b) async {
+    await b.delete();
+  }
+
+  Budget? getBudgetForCategory(String categoryName) =>
+      _budgets.values.where((x) => x.categoryName == categoryName).firstOrNull;
 }
