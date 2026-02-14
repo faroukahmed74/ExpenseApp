@@ -1,0 +1,81 @@
+{
+  "@@locale": "en",
+  "appTitle": "Expense Tracker",
+  "spentThisMonth": "Spent this month",
+  "quickByCategory": "Quick by category",
+  "addExpense": "Add expense",
+  "transactions": "Transactions",
+  "noExpensesYet": "No expenses yet",
+  "tapToAddOne": "Tap + to add one",
+  "total": "Total",
+  "delete": "Delete",
+  "deleteExpenseTitle": "Delete expense?",
+  "cancel": "Cancel",
+  "statistics": "Statistics",
+  "noDataYet": "No data yet",
+  "noSpendingToShow": "No spending to show",
+  "totalSpentAllTime": "Total spent (all time)",
+  "byCategory": "By category",
+  "thisMonth": "This month",
+  "budgets": "Budgets",
+  "budgetsHint": "Set a monthly limit per category. You'll see how much is left on the home screen.",
+  "noLimitSet": "No limit set",
+  "budgetFor": "Budget for {category}",
+  "@budgetFor": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyLimit": "Monthly limit ({symbol})",
+  "@monthlyLimit": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "remove": "Remove",
+  "save": "Save",
+  "editExpense": "Edit expense",
+  "amount": "Amount",
+  "enterAmount": "Enter amount",
+  "enterPositiveAmount": "Enter a positive amount",
+  "category": "Category",
+  "date": "Date",
+  "noteOptional": "Note (optional)",
+  "currency": "Currency",
+  "filterByCategory": "Filter by category",
+  "byDateRange": "By date range",
+  "left": "left",
+  "spentOf": "Spent {spent} of {limit} · {remaining} left",
+  "@spentOf": {
+    "placeholders": {
+      "spent": { "type": "String" },
+      "limit": { "type": "String" },
+      "remaining": { "type": "String" }
+    }
+  },
+  "categoryFood": "Food",
+  "categoryTransport": "Transport",
+  "categoryBills": "Bills",
+  "categoryShopping": "Shopping",
+  "categoryEntertainment": "Entertainment",
+  "categoryHealth": "Health",
+  "categoryOther": "Other",
+  "currencyEgp": "Egyptian Pound",
+  "currencyUsd": "US Dollar",
+  "currencyEur": "Euro",
+  "currencyGbp": "British Pound",
+  "currencySar": "Saudi Riyal",
+  "currencyAed": "UAE Dirham",
+  "settings": "Settings",
+  "language": "Language",
+  "theme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "developedBy": "Developed by Ahmed Farouk",
+  "version": "Version"
+}

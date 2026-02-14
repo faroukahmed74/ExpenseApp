@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 
 class AddEditExpenseArgs {
   final Expense? expense;
@@ -93,11 +95,12 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<ExpenseProvider>();
     final currencySymbol = provider.currency.symbol;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit expense' : 'Add expense'),
+        title: Text(_isEdit ? l10n.editExpense : l10n.addExpense),
       ),
       body: SafeArea(
         child: Form(
@@ -105,59 +108,59 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-            TextFormField(
-              controller: _amountController,
-              decoration: InputDecoration(
-                labelText: 'Amount',
-                prefixText: '$currencySymbol ',
+              TextFormField(
+                controller: _amountController,
+                decoration: InputDecoration(
+                  labelText: l10n.amount,
+                  prefixText: '$currencySymbol ',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return l10n.enterAmount;
+                  final n = double.tryParse(v);
+                  if (n == null || n <= 0) return l10n.enterPositiveAmount;
+                  return null;
+                },
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Enter amount';
-                final n = double.tryParse(v);
-                if (n == null || n <= 0) return 'Enter a positive amount';
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<ExpenseCategory>(
-              initialValue: _category,
-              decoration: const InputDecoration(labelText: 'Category'),
-              items: ExpenseCategory.values
-                  .map((c) => DropdownMenuItem(
-                        value: c,
-                        child: Row(
-                          children: [
-                            Icon(c.icon, color: c.color, size: 20),
-                            const SizedBox(width: 8),
-                            Text(c.label),
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (v) => setState(() => _category = v!),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Date'),
-              subtitle: Text(DateFormat.yMMMd().format(_date)),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: _pickDate,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _noteController,
-              decoration: const InputDecoration(labelText: 'Note (optional)'),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _submit,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(_isEdit ? 'Save' : 'Add expense'),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<ExpenseCategory>(
+                initialValue: _category,
+                decoration: InputDecoration(labelText: l10n.category),
+                items: ExpenseCategory.values
+                    .map((c) => DropdownMenuItem(
+                          value: c,
+                          child: Row(
+                            children: [
+                              Icon(c.icon, color: c.color, size: 20),
+                              const SizedBox(width: 8),
+                              Text(categoryLabel(context, c)),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => _category = v!),
               ),
-            ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: Text(l10n.date),
+                subtitle: Text(DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(_date)),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: _pickDate,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _noteController,
+                decoration: InputDecoration(labelText: l10n.noteOptional),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _submit,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(_isEdit ? l10n.save : l10n.addExpense),
+                ),
+              ),
             ],
           ),
         ),

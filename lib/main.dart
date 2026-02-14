@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'data/expense_repository.dart';
+import 'providers/app_settings_provider.dart';
 import 'providers/expense_provider.dart';
 
 void main() async {
@@ -10,8 +11,15 @@ void main() async {
   final repo = ExpenseRepository();
   await repo.init();
   runApp(
-    ChangeNotifierProvider<ExpenseProvider>(
-      create: (_) => ExpenseProvider(repo)..load(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ExpenseProvider>(
+          create: (_) => ExpenseProvider(repo)..load(),
+        ),
+        ChangeNotifierProvider<AppSettingsProvider>(
+          create: (_) => AppSettingsProvider(repo)..load(),
+        ),
+      ],
       child: const ExpenseApp(),
     ),
   );

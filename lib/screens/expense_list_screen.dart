@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 import 'add_edit_expense_screen.dart';
 
 class ExpenseListScreen extends StatefulWidget {
@@ -22,9 +24,10 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions'),
+        title: Text(l10n.transactions),
         actions: [
           if (_categoryFilter != null || _start != null || _end != null)
             IconButton(
@@ -44,7 +47,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                 final cat = await showDialog<ExpenseCategory>(
                   context: context,
                   builder: (ctx) => SimpleDialog(
-                    title: const Text('Filter by category'),
+                    title: Text(l10n.filterByCategory),
                     children: [
                       ...ExpenseCategory.values.map((c) => SimpleDialogOption(
                             onPressed: () => Navigator.pop(ctx, c),
@@ -52,7 +55,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                               children: [
                                 Icon(c.icon, color: c.color),
                                 const SizedBox(width: 8),
-                                Text(c.label),
+                                Text(categoryLabel(ctx, c)),
                               ],
                             ),
                           )),
@@ -78,8 +81,8 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
               }
             },
             itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'category', child: Text('By category')),
-              const PopupMenuItem(value: 'date', child: Text('By date range')),
+              PopupMenuItem(value: 'category', child: Text(l10n.byCategory)),
+              PopupMenuItem(value: 'date', child: Text(l10n.byDateRange)),
             ],
           ),
         ],
@@ -97,12 +100,12 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                     Icon(Icons.receipt_long, size: 64, color: Colors.grey[400]),
                     const SizedBox(height: 16),
                     Text(
-                      'No expenses yet',
+                      l10n.noExpensesYet,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tap + to add one',
+                      l10n.tapToAddOne,
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   ],
@@ -117,7 +120,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total: ${format.format(provider.totalSpentFiltered)}',
+                        '${l10n.total}: ${format.format(provider.totalSpentFiltered)}',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
@@ -131,6 +134,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                       return _ExpenseTile(
                         expense: e,
                         format: format,
+                        categoryLabel: categoryLabel(context, e.category),
                         onTap: () => Navigator.pushNamed(
                           context,
                           AddEditExpenseScreen.routeName,
@@ -161,24 +165,25 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
     ExpenseProvider provider,
     Expense expense,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete expense?'),
+        title: Text(l10n.deleteExpenseTitle),
         content: Text(
-          '${expense.category.label} · ${provider.currencyFormat.format(expense.amount)}',
+          '${categoryLabel(ctx, expense.category)} · ${provider.currencyFormat.format(expense.amount)}',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -193,12 +198,14 @@ class _ExpenseTile extends StatelessWidget {
   const _ExpenseTile({
     required this.expense,
     required this.format,
+    required this.categoryLabel,
     required this.onTap,
     required this.onDelete,
   });
 
   final Expense expense;
   final NumberFormat format;
+  final String categoryLabel;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -212,9 +219,9 @@ class _ExpenseTile extends StatelessWidget {
           backgroundColor: cat.color.withValues(alpha: 0.2),
           child: Icon(cat.icon, color: cat.color),
         ),
-        title: Text(cat.label),
+        title: Text(categoryLabel),
         subtitle: Text(
-          '${DateFormat.yMMMd().format(expense.date)}${expense.note.isNotEmpty ? ' · ${expense.note}' : ''}',
+          '${DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(expense.date)}${expense.note.isNotEmpty ? ' · ${expense.note}' : ''}',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -230,7 +237,10 @@ class _ExpenseTile extends StatelessWidget {
                 if (v == 'delete') onDelete();
               },
               itemBuilder: (ctx) => [
-                const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(AppLocalizations.of(ctx)!.delete),
+                ),
               ],
             ),
           ],

@@ -1,0 +1,81 @@
+{
+  "@@locale": "ar",
+  "appTitle": "تتبع المصروفات",
+  "spentThisMonth": "المصروف هذا الشهر",
+  "quickByCategory": "سريع حسب الفئة",
+  "addExpense": "إضافة مصروف",
+  "transactions": "المعاملات",
+  "noExpensesYet": "لا مصروفات بعد",
+  "tapToAddOne": "اضغط + للإضافة",
+  "total": "المجموع",
+  "delete": "حذف",
+  "deleteExpenseTitle": "حذف المصروف؟",
+  "cancel": "إلغاء",
+  "statistics": "الإحصائيات",
+  "noDataYet": "لا توجد بيانات بعد",
+  "noSpendingToShow": "لا مصروفات لعرضها",
+  "totalSpentAllTime": "إجمالي المصروفات (كل الوقت)",
+  "byCategory": "حسب الفئة",
+  "thisMonth": "هذا الشهر",
+  "budgets": "الميزانيات",
+  "budgetsHint": "حدد حداً شهرياً لكل فئة. سترى المتبقي في الصفحة الرئيسية.",
+  "noLimitSet": "لم يُحدد حد",
+  "budgetFor": "ميزانية {category}",
+  "@budgetFor": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyLimit": "الحد الشهري ({symbol})",
+  "@monthlyLimit": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "remove": "إزالة",
+  "save": "حفظ",
+  "editExpense": "تعديل مصروف",
+  "amount": "المبلغ",
+  "enterAmount": "أدخل المبلغ",
+  "enterPositiveAmount": "أدخل مبلغاً موجباً",
+  "category": "الفئة",
+  "date": "التاريخ",
+  "noteOptional": "ملاحظة (اختياري)",
+  "currency": "العملة",
+  "filterByCategory": "تصفية حسب الفئة",
+  "byDateRange": "حسب فترة زمنية",
+  "left": "متبقي",
+  "spentOf": "مصروف {spent} من {limit} · {remaining} متبقي",
+  "@spentOf": {
+    "placeholders": {
+      "spent": { "type": "String" },
+      "limit": { "type": "String" },
+      "remaining": { "type": "String" }
+    }
+  },
+  "categoryFood": "طعام",
+  "categoryTransport": "مواصلات",
+  "categoryBills": "فواتير",
+  "categoryShopping": "تسوق",
+  "categoryEntertainment": "ترفيه",
+  "categoryHealth": "صحة",
+  "categoryOther": "أخرى",
+  "currencyEgp": "جنيه مصري",
+  "currencyUsd": "دولار أمريكي",
+  "currencyEur": "يورو",
+  "currencyGbp": "جنيه إسترليني",
+  "currencySar": "ريال سعودي",
+  "currencyAed": "درهم إماراتي",
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "theme": "المظهر",
+  "themeLight": "فاتح",
+  "themeDark": "داكن",
+  "themeSystem": "حسب النظام",
+  "developedBy": "تطوير بواسطه احمد فاروق",
+  "version": "الإصدار"
+}

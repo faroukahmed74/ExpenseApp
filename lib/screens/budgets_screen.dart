@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/budget.dart';
 import '../models/category.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 
 class BudgetsScreen extends StatelessWidget {
   const BudgetsScreen({super.key});
@@ -11,8 +13,9 @@ class BudgetsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Budgets')),
+      appBar: AppBar(title: Text(l10n.budgets)),
       body: SafeArea(
         child: Consumer<ExpenseProvider>(
           builder: (context, provider, _) {
@@ -20,53 +23,57 @@ class BudgetsScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-              Text(
-                'Set a monthly limit per category. You\'ll see how much is left on the home screen.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              ...ExpenseCategory.values.map((cat) {
-                final limit = provider.budgetLimitForCategory(cat);
-                final spent = provider.spentForCategory(cat);
-                final remaining = limit != null ? limit - spent : null;
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: cat.color.withValues(alpha: 0.2),
-                      child: Icon(cat.icon, color: cat.color),
-                    ),
-                    title: Text(cat.label),
-                    subtitle: limit != null
-                        ? Text(
-                            'Spent ${format.format(spent)} of ${format.format(limit)} · ${format.format(remaining ?? 0)} left',
-                            style: TextStyle(
-                              color: remaining != null && remaining < 0
-                                  ? Theme.of(context).colorScheme.error
-                                  : null,
+                Text(
+                  l10n.budgetsHint,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                ),
+                const SizedBox(height: 24),
+                ...ExpenseCategory.values.map((cat) {
+                  final limit = provider.budgetLimitForCategory(cat);
+                  final spent = provider.spentForCategory(cat);
+                  final remaining = limit != null ? limit - spent : null;
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: cat.color.withValues(alpha: 0.2),
+                        child: Icon(cat.icon, color: cat.color),
+                      ),
+                      title: Text(categoryLabel(context, cat)),
+                      subtitle: limit != null
+                          ? Text(
+                              l10n.spentOf(
+                                format.format(spent),
+                                format.format(limit),
+                                format.format(remaining ?? 0),
+                              ),
+                              style: TextStyle(
+                                color: remaining != null && remaining < 0
+                                    ? Theme.of(context).colorScheme.error
+                                    : null,
+                              ),
+                            )
+                          : Text(l10n.noLimitSet),
+                      trailing: limit != null
+                          ? IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _showSetBudgetDialog(
+                                context,
+                                provider,
+                                cat,
+                                limit,
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () =>
+                                  _showSetBudgetDialog(context, provider, cat, null),
                             ),
-                          )
-                        : const Text('No limit set'),
-                    trailing: limit != null
-                        ? IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showSetBudgetDialog(
-                              context,
-                              provider,
-                              cat,
-                              limit,
-                            ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () =>
-                                _showSetBudgetDialog(context, provider, cat, null),
-                          ),
-                  ),
-                );
-              }),
+                    ),
+                  );
+                }),
               ],
             );
           },
@@ -81,6 +88,7 @@ class BudgetsScreen extends StatelessWidget {
     ExpenseCategory category,
     double? currentLimit,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(
       text: currentLimit?.toStringAsFixed(2) ?? '',
     );
@@ -88,11 +96,11 @@ class BudgetsScreen extends StatelessWidget {
     final result = await showDialog<double>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Budget for ${category.label}'),
+        title: Text(l10n.budgetFor(categoryLabel(ctx, category))),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            labelText: 'Monthly limit ($symbol)',
+            labelText: l10n.monthlyLimit(symbol),
             prefixText: '$symbol ',
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -101,7 +109,7 @@ class BudgetsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           if (currentLimit != null)
             TextButton(
@@ -113,7 +121,7 @@ class BudgetsScreen extends StatelessWidget {
                 if (ctx.mounted) Navigator.pop(ctx);
               },
               child: Text(
-                'Remove',
+                l10n.remove,
                 style: TextStyle(color: Theme.of(ctx).colorScheme.error),
               ),
             ),
@@ -122,7 +130,7 @@ class BudgetsScreen extends StatelessWidget {
               final v = double.tryParse(controller.text);
               if (v != null && v > 0) Navigator.pop(ctx, v);
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),

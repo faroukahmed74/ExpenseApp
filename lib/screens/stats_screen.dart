@@ -2,7 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -10,53 +12,54 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistics')),
+      appBar: AppBar(title: Text(l10n.statistics)),
       body: SafeArea(
         child: Consumer<ExpenseProvider>(
           builder: (context, provider, _) {
-          final byCategory = provider.spendingByCategory;
-          final total = byCategory.values.fold<double>(0, (a, b) => a + b);
-          final format = provider.currencyFormat;
+            final byCategory = provider.spendingByCategory;
+            final total = byCategory.values.fold<double>(0, (a, b) => a + b);
+            final format = provider.currencyFormat;
 
-          if (byCategory.isEmpty) {
-            return Center(
+            if (byCategory.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.pie_chart, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.noDataYet,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final entries = byCategory.entries
+                .where((e) => e.value > 0)
+                .map((e) => MapEntry(e.key, e.value))
+                .toList();
+            if (entries.isEmpty) {
+              return Center(child: Text(l10n.noSpendingToShow));
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.pie_chart, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No data yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final entries = byCategory.entries
-              .where((e) => e.value > 0)
-              .map((e) => MapEntry(e.key, e.value))
-              .toList();
-          if (entries.isEmpty) {
-            return const Center(child: Text('No spending to show'));
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Total spent (all time)',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.totalSpentAllTime,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                         const SizedBox(height: 8),
                         Text(
                           format.format(total),
@@ -69,11 +72,11 @@ class StatsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'By category',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.byCategory,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 220,
@@ -117,7 +120,7 @@ class StatsScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(e.key.label),
+                          child: Text(categoryLabel(context, e.key)),
                         ),
                         Text(
                           '${format.format(e.value)} (${(pct * 100).toStringAsFixed(0)}%)',
@@ -127,11 +130,11 @@ class StatsScreen extends StatelessWidget {
                     ),
                   );
                 }),
-                const SizedBox(height: 24),
-                Text(
-                  'This month',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.thisMonth,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 const SizedBox(height: 8),
                 Card(
                   child: Padding(

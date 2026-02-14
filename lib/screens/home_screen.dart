@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 import '../widgets/currency_picker.dart';
 import 'add_edit_expense_screen.dart';
 import 'budgets_screen.dart';
 import 'expense_list_screen.dart';
+import 'settings_screen.dart';
 import 'stats_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -15,6 +18,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: FittedBox(
@@ -29,14 +33,14 @@ class HomeScreen extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 10),
-              const Text('Expense Tracker'),
+              Text(l10n.appTitle),
             ],
           ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.currency_exchange),
-            tooltip: 'Currency',
+            tooltip: l10n.currency,
             onPressed: () => showCurrencyPicker(context),
           ),
           IconButton(
@@ -54,6 +58,11 @@ class HomeScreen extends StatelessWidget {
             onPressed: () =>
                 Navigator.pushNamed(context, BudgetsScreen.routeName),
           ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () =>
+                Navigator.pushNamed(context, SettingsScreen.routeName),
+          ),
         ],
       ),
       body: SafeArea(
@@ -63,73 +72,77 @@ class HomeScreen extends StatelessWidget {
             final format = provider.currencyFormat;
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Spent this month',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          format.format(total),
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                      ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.spentThisMonth,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            format.format(total),
+                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Quick by category',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                ...ExpenseCategory.values.map((cat) {
-                  final spent = provider.spentForCategory(cat);
-                  final limit = provider.budgetLimitForCategory(cat);
-                  final hasBudget = limit != null;
-                  final remaining = hasBudget ? (limit - spent) : null;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: cat.color.withValues(alpha: 0.2),
-                        child: Icon(cat.icon, color: cat.color),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.quickByCategory,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  ...ExpenseCategory.values.map((cat) {
+                    final spent = provider.spentForCategory(cat);
+                    final limit = provider.budgetLimitForCategory(cat);
+                    final hasBudget = limit != null;
+                    final remaining = hasBudget ? (limit - spent) : null;
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: cat.color.withValues(alpha: 0.2),
+                          child: Icon(cat.icon, color: cat.color),
+                        ),
+                        title: Text(categoryLabel(context, cat)),
+                        subtitle: hasBudget && remaining != null
+                            ? Text(
+                                l10n.spentOf(
+                                  format.format(spent),
+                                  format.format(limit),
+                                  format.format(remaining),
+                                ),
+                                style: TextStyle(
+                                  color: remaining < 0
+                                      ? Theme.of(context).colorScheme.error
+                                      : null,
+                                ),
+                              )
+                            : Text(format.format(spent)),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AddEditExpenseScreen.routeName,
+                          arguments: AddEditExpenseArgs(category: cat),
+                        ),
                       ),
-                      title: Text(cat.label),
-                      subtitle: hasBudget && remaining != null
-                          ? Text(
-                              '${format.format(spent)} / ${format.format(limit)} · ${format.format(remaining)} left',
-                              style: TextStyle(
-                                color: remaining < 0
-                                    ? Theme.of(context).colorScheme.error
-                                    : null,
-                              ),
-                            )
-                          : Text(format.format(spent)),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        AddEditExpenseScreen.routeName,
-                        arguments: AddEditExpenseArgs(category: cat),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          );
-        },
-      ),
+                    );
+                  }),
+                ],
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(
@@ -137,7 +150,7 @@ class HomeScreen extends StatelessWidget {
           AddEditExpenseScreen.routeName,
         ),
         icon: const Icon(Icons.add),
-        label: const Text('Add expense'),
+        label: Text(l10n.addExpense),
       ),
     );
   }

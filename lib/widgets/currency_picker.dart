@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/currency.dart';
 import '../providers/expense_provider.dart';
+import '../utils/localization_utils.dart';
 
 /// Shows a dialog to pick the app currency. Call from a currency icon button.
 Future<void> showCurrencyPicker(BuildContext context) async {
   final provider = context.read<ExpenseProvider>();
   final selected = provider.currency;
+  final l10n = AppLocalizations.of(context)!;
 
   final picked = await showDialog<AppCurrency>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.attach_money),
-          SizedBox(width: 8),
-          Text('Currency'),
+          const Icon(Icons.attach_money),
+          const SizedBox(width: 8),
+          Text(l10n.currency),
         ],
       ),
       content: SingleChildScrollView(
@@ -29,7 +32,7 @@ Future<void> showCurrencyPicker(BuildContext context) async {
                 c.symbol,
                 style: Theme.of(ctx).textTheme.titleLarge,
               ),
-              title: Text(c.name),
+              title: Text(currencyLocalizedName(ctx, c.code)),
               subtitle: Text(c.code),
               trailing: isSelected ? const Icon(Icons.check_circle, color: Colors.green) : null,
               selected: isSelected,

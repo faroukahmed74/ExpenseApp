@@ -8,6 +8,8 @@ class ExpenseRepository {
   static const _budgetsBox = 'budgets';
   static const _settingsBox = 'settings';
   static const _keyCurrency = 'currency';
+  static const _keyLocale = 'locale';
+  static const _keyThemeMode = 'theme_mode';
 
   Box<Expense>? _expenses;
   Box<Budget>? _budgets;
@@ -75,5 +77,22 @@ class ExpenseRepository {
 
   Future<void> setCurrencyCode(String code) async {
     await _settings?.put(_keyCurrency, code);
+  }
+
+  String? get localeCode => _settings?.get(_keyLocale) as String?;
+
+  Future<void> setLocaleCode(String? code) async {
+    if (code == null) {
+      await _settings?.delete(_keyLocale);
+    } else {
+      await _settings?.put(_keyLocale, code);
+    }
+  }
+
+  String get themeModeName =>
+      _settings?.get(_keyThemeMode) as String? ?? 'system';
+
+  Future<void> setThemeModeName(String value) async {
+    await _settings?.put(_keyThemeMode, value);
   }
 }
