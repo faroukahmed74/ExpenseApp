@@ -3,17 +3,9 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 
-String categoryLabel(BuildContext context, ExpenseCategory category) {
-  final l10n = AppLocalizations.of(context)!;
-  return switch (category) {
-    ExpenseCategory.food => l10n.categoryFood,
-    ExpenseCategory.transport => l10n.categoryTransport,
-    ExpenseCategory.bills => l10n.categoryBills,
-    ExpenseCategory.shopping => l10n.categoryShopping,
-    ExpenseCategory.entertainment => l10n.categoryEntertainment,
-    ExpenseCategory.health => l10n.categoryHealth,
-    ExpenseCategory.other => l10n.categoryOther,
-  };
+String categoryLabel(BuildContext context, Category category) {
+  final locale = Localizations.localeOf(context);
+  return locale.languageCode == 'ar' ? category.nameAr : category.nameEn;
 }
 
 String currencyLocalizedName(BuildContext context, String currencyCode) {

@@ -30,9 +30,9 @@ class BudgetsScreen extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 24),
-                ...ExpenseCategory.values.map((cat) {
-                  final limit = provider.budgetLimitForCategory(cat);
-                  final spent = provider.spentForCategory(cat);
+                ...provider.categories.map((cat) {
+                  final limit = provider.budgetLimitForCategoryId(cat.id);
+                  final spent = provider.spentForCategoryId(cat.id);
                   final remaining = limit != null ? limit - spent : null;
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -85,7 +85,7 @@ class BudgetsScreen extends StatelessWidget {
   Future<void> _showSetBudgetDialog(
     BuildContext context,
     ExpenseProvider provider,
-    ExpenseCategory category,
+    Category category,
     double? currentLimit,
   ) async {
     final l10n = AppLocalizations.of(context)!;
@@ -114,10 +114,10 @@ class BudgetsScreen extends StatelessWidget {
           if (currentLimit != null)
             TextButton(
               onPressed: () async {
-                final b = provider.budgets
-                    .where((x) => x.categoryName == category.name)
-                    .firstOrNull;
-                if (b != null) await provider.removeBudget(b);
+                final list = provider.budgets
+                    .where((x) => x.categoryName == category.id)
+                    .toList();
+                if (list.isNotEmpty) await provider.removeBudget(list.first);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
               child: Text(
@@ -138,7 +138,7 @@ class BudgetsScreen extends StatelessWidget {
     controller.dispose();
     if (result != null && result > 0) {
       await provider.setBudget(Budget(
-        categoryName: category.name,
+        categoryName: category.id,
         limit: result,
       ));
     }

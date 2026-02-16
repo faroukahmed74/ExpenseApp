@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
-import '../models/category.dart';
 import '../providers/expense_provider.dart';
 import '../utils/localization_utils.dart';
 import '../widgets/currency_picker.dart';
@@ -102,9 +101,9 @@ class HomeScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
-                  ...ExpenseCategory.values.map((cat) {
-                    final spent = provider.spentForCategory(cat);
-                    final limit = provider.budgetLimitForCategory(cat);
+                  ...provider.categories.map((cat) {
+                    final spent = provider.spentForCategoryId(cat.id);
+                    final limit = provider.budgetLimitForCategoryId(cat.id);
                     final hasBudget = limit != null;
                     final remaining = hasBudget ? (limit - spent) : null;
                     return Card(

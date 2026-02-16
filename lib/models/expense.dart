@@ -1,14 +1,12 @@
 import 'package:hive/hive.dart';
 
-import 'category.dart';
-
 @HiveType(typeId: 0)
 class Expense extends HiveObject {
   @HiveField(0)
   double amount;
 
   @HiveField(1)
-  String categoryName;
+  String categoryName; // category id
 
   @HiveField(2)
   String note;
@@ -22,8 +20,6 @@ class Expense extends HiveObject {
     this.note = '',
     required this.date,
   });
-
-  ExpenseCategory get category => ExpenseCategory.fromName(categoryName);
 
   Expense copyWith({
     double? amount,

@@ -18,7 +18,7 @@ class ExpenseListScreen extends StatefulWidget {
 }
 
 class _ExpenseListScreenState extends State<ExpenseListScreen> {
-  ExpenseCategory? _categoryFilter;
+  Category? _categoryFilter;
   DateTime? _start;
   DateTime? _end;
 
@@ -44,12 +44,13 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
           PopupMenuButton<String>(
             onSelected: (value) async {
               if (value == 'category') {
-                final cat = await showDialog<ExpenseCategory>(
+                final provider = context.read<ExpenseProvider>();
+                final cat = await showDialog<Category>(
                   context: context,
                   builder: (ctx) => SimpleDialog(
                     title: Text(l10n.filterByCategory),
                     children: [
-                      ...ExpenseCategory.values.map((c) => SimpleDialogOption(
+                      ...provider.categories.map((c) => SimpleDialogOption(
                             onPressed: () => Navigator.pop(ctx, c),
                             child: Row(
                               children: [
@@ -63,7 +64,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                   ),
                 );
                 if (cat != null && context.mounted) {
-                  context.read<ExpenseProvider>().setCategoryFilter(cat);
+                  context.read<ExpenseProvider>().setCategoryFilterId(cat.id);
                   setState(() => _categoryFilter = cat);
                 }
               } else if (value == 'date') {
@@ -131,10 +132,12 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                     itemCount: list.length,
                     itemBuilder: (context, index) {
                       final e = list[index];
+                      final cat = provider.categoryById(e.categoryName);
                       return _ExpenseTile(
                         expense: e,
+                        category: cat,
                         format: format,
-                        categoryLabel: categoryLabel(context, e.category),
+                        categoryLabel: cat != null ? categoryLabel(context, cat) : e.categoryName,
                         onTap: () => Navigator.pushNamed(
                           context,
                           AddEditExpenseScreen.routeName,
@@ -166,12 +169,14 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
     Expense expense,
   ) async {
     final l10n = AppLocalizations.of(context)!;
+    final cat = provider.categoryById(expense.categoryName);
+    final label = cat != null ? categoryLabel(context, cat) : expense.categoryName;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l10n.deleteExpenseTitle),
         content: Text(
-          '${categoryLabel(ctx, expense.category)} · ${provider.currencyFormat.format(expense.amount)}',
+          '$label · ${provider.currencyFormat.format(expense.amount)}',
         ),
         actions: [
           TextButton(
@@ -197,6 +202,7 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
 class _ExpenseTile extends StatelessWidget {
   const _ExpenseTile({
     required this.expense,
+    required this.category,
     required this.format,
     required this.categoryLabel,
     required this.onTap,
@@ -204,6 +210,7 @@ class _ExpenseTile extends StatelessWidget {
   });
 
   final Expense expense;
+  final Category? category;
   final NumberFormat format;
   final String categoryLabel;
   final VoidCallback onTap;
@@ -211,13 +218,14 @@ class _ExpenseTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cat = expense.category;
+    final color = category?.color ?? const Color(0xFF90A4AE);
+    final icon = category?.icon ?? Icons.category;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: cat.color.withValues(alpha: 0.2),
-          child: Icon(cat.icon, color: cat.color),
+          backgroundColor: color.withValues(alpha: 0.2),
+          child: Icon(icon, color: color),
         ),
         title: Text(categoryLabel),
         subtitle: Text(

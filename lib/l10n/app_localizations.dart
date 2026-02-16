@@ -439,6 +439,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version'**
   String get version;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// No description provided for @categoryNameEn.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (English)'**
+  String get categoryNameEn;
+
+  /// No description provided for @categoryNameAr.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (Arabic)'**
+  String get categoryNameAr;
+
+  /// No description provided for @icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get icon;
+
+  /// No description provided for @color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get color;
+
+  /// No description provided for @noCategoriesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet'**
+  String get noCategoriesYet;
+
+  /// No description provided for @categoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Category deleted'**
+  String get categoryDeleted;
+
+  /// No description provided for @cannotDeleteCategoryInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete: this category has expenses'**
+  String get cannotDeleteCategoryInUse;
+
+  /// No description provided for @keepAtLeastOneCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one category'**
+  String get keepAtLeastOneCategory;
 }
 
 class _AppLocalizationsDelegate

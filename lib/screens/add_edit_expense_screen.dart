@@ -10,7 +10,7 @@ import '../utils/localization_utils.dart';
 
 class AddEditExpenseArgs {
   final Expense? expense;
-  final ExpenseCategory? category;
+  final Category? category;
 
   AddEditExpenseArgs({this.expense, this.category});
 }
@@ -28,7 +28,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
-  ExpenseCategory _category = ExpenseCategory.other;
+  String? _categoryId;
   DateTime _date = DateTime.now();
   bool _isEdit = false;
 
@@ -36,15 +36,19 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments as AddEditExpenseArgs?;
+    final provider = context.read<ExpenseProvider>();
     if (args != null && args.expense != null && !_isEdit) {
       _isEdit = true;
       final e = args.expense!;
       _amountController.text = e.amount.toStringAsFixed(2);
       _noteController.text = e.note;
-      _category = e.category;
+      _categoryId = e.categoryName;
       _date = e.date;
     } else if (args?.category != null && _amountController.text.isEmpty) {
-      _category = args!.category!;
+      _categoryId = args!.category!.id;
+    }
+    if (_categoryId == null && provider.categories.isNotEmpty) {
+      _categoryId = provider.categories.first.id;
     }
   }
 
@@ -69,6 +73,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     if (!_formKey.currentState!.validate()) return;
     final amount = double.tryParse(_amountController.text);
     if (amount == null || amount <= 0) return;
+    final categoryId = _categoryId ?? 'other';
 
     final provider = context.read<ExpenseProvider>();
     if (_isEdit) {
@@ -77,7 +82,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
       if (existing != null) {
         await provider.updateExpense(existing.copyWith(
           amount: amount,
-          categoryName: _category.name,
+          categoryName: categoryId,
           note: _noteController.text.trim(),
           date: _date,
         ));
@@ -85,7 +90,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     } else {
       await provider.addExpense(Expense(
         amount: amount,
-        categoryName: _category.name,
+        categoryName: categoryId,
         note: _noteController.text.trim(),
         date: _date,
       ));
@@ -98,6 +103,9 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = context.watch<ExpenseProvider>();
     final currencySymbol = provider.currency.symbol;
+    final categories = provider.categories;
+    final effectiveCategoryId = _categoryId ?? (categories.isNotEmpty ? categories.first.id : null);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? l10n.editExpense : l10n.addExpense),
@@ -123,12 +131,12 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<ExpenseCategory>(
-                initialValue: _category,
+              DropdownButtonFormField<String>(
+                value: effectiveCategoryId,
                 decoration: InputDecoration(labelText: l10n.category),
-                items: ExpenseCategory.values
+                items: categories
                     .map((c) => DropdownMenuItem(
-                          value: c,
+                          value: c.id,
                           child: Row(
                             children: [
                               Icon(c.icon, color: c.color, size: 20),
@@ -138,7 +146,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                           ),
                         ))
                     .toList(),
-                onChanged: (v) => setState(() => _category = v!),
+                onChanged: (v) => setState(() => _categoryId = v),
               ),
               const SizedBox(height: 16),
               ListTile(

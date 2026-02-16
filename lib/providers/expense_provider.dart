@@ -12,16 +12,20 @@ class ExpenseProvider with ChangeNotifier {
 
   final ExpenseRepository _repo;
 
-  ExpenseCategory? _categoryFilter;
+  String? _categoryFilterId;
   DateTime? _dateStart;
   DateTime? _dateEnd;
 
   List<Expense> get _allExpenses => _repo.getAllExpenses();
 
+  List<Category> get categories => _repo.getCategories();
+
+  Category? categoryById(String id) => _repo.getCategoryById(id);
+
   List<Expense> get filteredExpenses {
     var list = _allExpenses;
-    if (_categoryFilter != null) {
-      list = list.where((e) => e.categoryName == _categoryFilter!.name).toList();
+    if (_categoryFilterId != null) {
+      list = list.where((e) => e.categoryName == _categoryFilterId).toList();
     }
     if (_dateStart != null) {
       list = list.where((e) => !e.date.isBefore(_dateStart!)).toList();
@@ -47,22 +51,22 @@ class ExpenseProvider with ChangeNotifier {
         .fold<double>(0, (sum, e) => sum + e.amount);
   }
 
-  double spentForCategory(ExpenseCategory cat) => _allExpenses
-      .where((e) => e.categoryName == cat.name)
+  double spentForCategoryId(String categoryId) => _allExpenses
+      .where((e) => e.categoryName == categoryId)
       .fold<double>(0, (sum, e) => sum + e.amount);
 
-  double? budgetLimitForCategory(ExpenseCategory cat) {
-    final b = _repo.getBudgetForCategory(cat.name);
+  double? budgetLimitForCategoryId(String categoryId) {
+    final b = _repo.getBudgetForCategory(categoryId);
     return b?.limit;
   }
 
   List<Budget> get budgets => _repo.getAllBudgets();
 
-  Map<ExpenseCategory, double> get spendingByCategory {
-    final map = <ExpenseCategory, double>{};
-    for (final cat in ExpenseCategory.values) {
-      final sum = spentForCategory(cat);
-      if (sum > 0) map[cat] = sum;
+  Map<String, double> get spendingByCategoryId {
+    final map = <String, double>{};
+    for (final cat in categories) {
+      final sum = spentForCategoryId(cat.id);
+      if (sum > 0) map[cat.id] = sum;
     }
     return map;
   }
@@ -71,8 +75,8 @@ class ExpenseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setCategoryFilter(ExpenseCategory? cat) {
-    _categoryFilter = cat;
+  void setCategoryFilterId(String? id) {
+    _categoryFilterId = id;
     notifyListeners();
   }
 
@@ -83,7 +87,7 @@ class ExpenseProvider with ChangeNotifier {
   }
 
   void clearFilters() {
-    _categoryFilter = null;
+    _categoryFilterId = null;
     _dateStart = null;
     _dateEnd = null;
     notifyListeners();
@@ -117,5 +121,37 @@ class ExpenseProvider with ChangeNotifier {
   Future<void> deleteExpense(Expense e) async {
     await _repo.deleteExpense(e);
     notifyListeners();
+  }
+
+  String _nextCustomCategoryId() {
+    int n = 0;
+    while (_repo.getCategoryById('custom_$n') != null) {
+      n++;
+    }
+    return 'custom_$n';
+  }
+
+  Future<void> addCategory({required String nameEn, required String nameAr, int iconIndex = 6, int colorValue = 0xFF90A4AE}) async {
+    final c = Category(
+      id: _nextCustomCategoryId(),
+      nameEn: nameEn.isEmpty ? 'Category' : nameEn,
+      nameAr: nameAr.isEmpty ? 'فئة' : nameAr,
+      iconIndex: iconIndex,
+      colorValue: colorValue,
+    );
+    await _repo.addCategory(c);
+    notifyListeners();
+  }
+
+  Future<void> updateCategory(Category c) async {
+    await _repo.updateCategory(c);
+    notifyListeners();
+  }
+
+  Future<bool> deleteCategory(Category c) async {
+    if (_repo.expenseCountForCategory(c.id) > 0) return false;
+    await _repo.deleteCategory(c);
+    notifyListeners();
+    return true;
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../providers/app_settings_provider.dart';
+import 'categories_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -48,6 +49,23 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    l10n.categories,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    child: ListTile(
+                      title: Text(l10n.categories),
+                      leading: const Icon(Icons.category),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        CategoriesScreen.routeName,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Text(

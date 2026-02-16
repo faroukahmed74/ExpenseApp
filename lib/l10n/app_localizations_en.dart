@@ -185,4 +185,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get version => 'Version';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get addCategory => 'Add category';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get categoryNameEn => 'Name (English)';
+
+  @override
+  String get categoryNameAr => 'Name (Arabic)';
+
+  @override
+  String get icon => 'Icon';
+
+  @override
+  String get color => 'Color';
+
+  @override
+  String get noCategoriesYet => 'No categories yet';
+
+  @override
+  String get categoryDeleted => 'Category deleted';
+
+  @override
+  String get cannotDeleteCategoryInUse =>
+      'Cannot delete: this category has expenses';
+
+  @override
+  String get keepAtLeastOneCategory => 'Keep at least one category';
 }

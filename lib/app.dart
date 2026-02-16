@@ -7,6 +7,7 @@ import 'l10n/app_localizations.dart';
 import 'providers/app_settings_provider.dart';
 import 'screens/add_edit_expense_screen.dart';
 import 'screens/budgets_screen.dart';
+import 'screens/categories_screen.dart';
 import 'screens/expense_list_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
@@ -93,6 +94,7 @@ class ExpenseApp extends StatelessWidget {
             BudgetsScreen.routeName: (_) => const BudgetsScreen(),
             AddEditExpenseScreen.routeName: (_) => const AddEditExpenseScreen(),
             SettingsScreen.routeName: (_) => const SettingsScreen(),
+            CategoriesScreen.routeName: (_) => const CategoriesScreen(),
           },
         );
       },

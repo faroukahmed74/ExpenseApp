@@ -77,5 +77,16 @@
   "themeDark": "Dark",
   "themeSystem": "System",
   "developedBy": "Developed by Ahmed Farouk",
-  "version": "Version"
+  "version": "Version",
+  "categories": "Categories",
+  "addCategory": "Add category",
+  "editCategory": "Edit category",
+  "categoryNameEn": "Name (English)",
+  "categoryNameAr": "Name (Arabic)",
+  "icon": "Icon",
+  "color": "Color",
+  "noCategoriesYet": "No categories yet",
+  "categoryDeleted": "Category deleted",
+  "cannotDeleteCategoryInUse": "Cannot delete: this category has expenses",
+  "keepAtLeastOneCategory": "Keep at least one category"
 }

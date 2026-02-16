@@ -77,5 +77,16 @@
   "themeDark": "داكن",
   "themeSystem": "حسب النظام",
   "developedBy": "تطوير بواسطه احمد فاروق",
-  "version": "الإصدار"
+  "version": "الإصدار",
+  "categories": "الفئات",
+  "addCategory": "إضافة فئة",
+  "editCategory": "تعديل الفئة",
+  "categoryNameEn": "الاسم (إنجليزي)",
+  "categoryNameAr": "الاسم (عربي)",
+  "icon": "الأيقونة",
+  "color": "اللون",
+  "noCategoriesYet": "لا توجد فئات بعد",
+  "categoryDeleted": "تم حذف الفئة",
+  "cannotDeleteCategoryInUse": "لا يمكن الحذف: توجد مصروفات بهذه الفئة",
+  "keepAtLeastOneCategory": "يجب الإبقاء على فئة واحدة على الأقل"
 }

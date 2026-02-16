@@ -185,4 +185,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get version => 'الإصدار';
+
+  @override
+  String get categories => 'الفئات';
+
+  @override
+  String get addCategory => 'إضافة فئة';
+
+  @override
+  String get editCategory => 'تعديل الفئة';
+
+  @override
+  String get categoryNameEn => 'الاسم (إنجليزي)';
+
+  @override
+  String get categoryNameAr => 'الاسم (عربي)';
+
+  @override
+  String get icon => 'الأيقونة';
+
+  @override
+  String get color => 'اللون';
+
+  @override
+  String get noCategoriesYet => 'لا توجد فئات بعد';
+
+  @override
+  String get categoryDeleted => 'تم حذف الفئة';
+
+  @override
+  String get cannotDeleteCategoryInUse =>
+      'لا يمكن الحذف: توجد مصروفات بهذه الفئة';
+
+  @override
+  String get keepAtLeastOneCategory => 'يجب الإبقاء على فئة واحدة على الأقل';
 }
